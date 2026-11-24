@@ -246,11 +246,13 @@ td.mono, th.mono { font-family: var(--mono); font-size: 0.78rem; }
 tr:last-child td { border-bottom: 0; }
 
 /* ---------- Upload ---------- */
-.dropzone { border: 1.5px dashed var(--border-strong); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer;
+.dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 220px;
+  border: 1.5px dashed var(--border-strong); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer;
   transition: border-color .2s, background .2s; background: var(--bg-elev); }
 .dropzone:hover, .dropzone.drag { border-color: var(--sky); background: rgba(125,211,252,.05); }
 .dropzone .ms { font-size: 40px; color: var(--sky); }
-.dropzone h4 { margin: 10px 0 4px; }
+.dropzone h4 { margin: 10px 0 4px; font-size: 1.05rem; }
+.dropzone p { margin: 0; max-width: 560px; font-size: 0.86rem; }
 
 details.disclosure { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; }
 details.disclosure summary { cursor: pointer; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 8px; list-style: none; }
