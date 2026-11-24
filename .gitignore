@@ -1,0 +1,37 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Large EEG data files and caches
+data/processed/*.parquet
+data/processed/*.csv
+data/processed/*.pkl
+data/cache/
+
+# Trained models (except lightweight test baselines if any)
+models/*.pt
+models/*.pth
+!models/.gitkeep
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Streamlit
+
+# Local-only folders
+report_build/
+.claude/
+*.zip

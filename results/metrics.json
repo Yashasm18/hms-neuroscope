@@ -1,0 +1,86 @@
+{
+  "dataset": "CHB-MIT Scalp EEG Database (v1.0.0)",
+  "protocol": "Patient-Level Holdout Experiment",
+  "partitions": {
+    "train": {
+      "patient": "chb01",
+      "recording": "chb01_03.edf",
+      "duration_sec": 3049.99609375,
+      "total_windows": 610,
+      "seizure_windows": 8,
+      "non_seizure_windows": 599,
+      "ambiguous_windows": 3
+    },
+    "validation": {
+      "patient": "chb01",
+      "recording": "chb01_04.edf",
+      "duration_sec": 1509.99609375,
+      "total_windows": 302,
+      "seizure_windows": 6,
+      "non_seizure_windows": 294,
+      "ambiguous_windows": 2
+    },
+    "test": {
+      "patient": "chb02",
+      "recording": "chb02_16.edf",
+      "duration_sec": 195.99609375,
+      "total_windows": 39,
+      "seizure_windows": 13,
+      "non_seizure_windows": 25,
+      "ambiguous_windows": 1
+    }
+  },
+  "sampling_rate_hz": 256.0,
+  "decision_threshold": 0.5,
+  "train_metrics": {
+    "accuracy": 1.0,
+    "sensitivity": 1.0,
+    "specificity": 1.0,
+    "precision": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 0.9999999999999999,
+    "confusion_matrix": {
+      "tn": 599,
+      "fp": 0,
+      "fn": 0,
+      "tp": 8
+    }
+  },
+  "validation_metrics": {
+    "accuracy": 0.9966666666666667,
+    "sensitivity": 1.0,
+    "specificity": 0.9965986394557823,
+    "precision": 0.8571428571428571,
+    "f1_score": 0.9230769230769231,
+    "roc_auc": 0.9982993197278912,
+    "confusion_matrix": {
+      "tn": 293,
+      "fp": 1,
+      "fn": 0,
+      "tp": 6
+    }
+  },
+  "test_metrics": {
+    "accuracy": 0.9473684210526315,
+    "sensitivity": 0.8461538461538461,
+    "specificity": 1.0,
+    "precision": 1.0,
+    "f1_score": 0.9166666666666666,
+    "roc_auc": 1.0,
+    "confusion_matrix": {
+      "tn": 25,
+      "fp": 0,
+      "fn": 2,
+      "tp": 11
+    }
+  },
+  "event_metrics": {
+    "total_true_events": 1,
+    "detected_true_events": 1,
+    "event_sensitivity": 1.0,
+    "false_alarms": 0,
+    "false_alarms_per_hour": 0.0
+  },
+  "audit_note": "CRITICAL BUG CONFIRMED: In chb01_03.edf, the single verified seizure occurs from 2996s to 3036s. A chronological 60%/20%/20% split places the seizure ENTIRELY inside the test partition (2440s to 3050s). The training partition has 0 seizure windows (366 non-seizure), and the validation partition has 0 seizure windows (122 non-seizure). Therefore, a supervised binary model CANNOT be trained or threshold-calibrated on this split. The previous run artificially split the 8 positive windows 4/2/2, causing intra-event temporal leakage across partitions.",
+  "medical_disclaimer": "RESEARCH PROTOTYPE ONLY: This software is developed solely for academic research and educational experimentation on the CHB-MIT EEG database. It is NOT a medical device, is NOT clinically validated or FDA-approved, and must NEVER be used for clinical diagnosis, treatment decisions, or emergency patient monitoring. Predicted scores reflect academic model outputs and are not calibrated clinical probabilities."
+}

@@ -1,0 +1,60 @@
+{
+  "dataset_name": "CHB-MIT Scalp EEG Database",
+  "protocol": "Patient-Level Holdout (Cross-Patient Generalization)",
+  "train_recording": "chb01_03.edf",
+  "train_patient": "chb01",
+  "validation_recording": "chb01_04.edf",
+  "validation_patient": "chb01",
+  "test_recording": "chb02_16.edf",
+  "test_patient": "chb02",
+  "sampling_rate_hz": 256.0,
+  "channels": [
+    "FP1-F7",
+    "F7-T7",
+    "T7-P7",
+    "P7-O1",
+    "FP1-F3",
+    "F3-C3",
+    "C3-P3",
+    "P3-O1",
+    "FP2-F4",
+    "F4-C4",
+    "C4-P4",
+    "P4-O2",
+    "FP2-F8",
+    "F8-T8",
+    "T8-P8",
+    "P8-O2",
+    "FZ-CZ",
+    "CZ-PZ"
+  ],
+  "n_channels": 18,
+  "preprocessing": {
+    "bandpass_lowcut_hz": 0.5,
+    "bandpass_highcut_hz": 40.0,
+    "notch_freq_hz": 60.0,
+    "filter_order": 4,
+    "zero_phase": true,
+    "demean": true
+  },
+  "windowing": {
+    "duration_sec": 5.0,
+    "step_sec": 5.0,
+    "overlap_ratio_threshold": 0.5,
+    "boundary_buffer_sec": 5.0
+  },
+  "model": {
+    "type": "RandomForestClassifier",
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_estimators": 100
+  },
+  "optimal_threshold": 0.5,
+  "software_versions": {
+    "python": "3.11.15",
+    "mne": "1.13.2",
+    "scikit_learn": "1.7.2",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+  }
+}

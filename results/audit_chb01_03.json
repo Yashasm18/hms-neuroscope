@@ -1,0 +1,141 @@
+{
+  "recording": "chb01_03.edf",
+  "duration_sec": 3049.99609375,
+  "sampling_rate_hz": 256.0,
+  "seizure_intervals_sec": [
+    [
+      2996.0,
+      3036.0
+    ]
+  ],
+  "window_duration_sec": 5.0,
+  "window_step_sec": 5.0,
+  "boundary_buffer_sec": 5.0,
+  "total_windows": 610,
+  "class_counts_overall": {
+    "seizure_windows": 8,
+    "non_seizure_windows": 599,
+    "ambiguous_boundary_excluded": 3,
+    "reconciliation_sum": 610
+  },
+  "chronological_partitions": {
+    "train": {
+      "span_sec": [
+        0.0,
+        1830.0
+      ],
+      "span_percentage": "60%",
+      "total_windows": 366,
+      "seizure_windows": 0,
+      "non_seizure_windows": 366,
+      "ambiguous_windows": 0
+    },
+    "validation": {
+      "span_sec": [
+        1830.0,
+        2440.0
+      ],
+      "span_percentage": "20%",
+      "total_windows": 122,
+      "seizure_windows": 0,
+      "non_seizure_windows": 122,
+      "ambiguous_windows": 0
+    },
+    "test": {
+      "span_sec": [
+        2440.0,
+        3050.0
+      ],
+      "span_percentage": "20%",
+      "total_windows": 122,
+      "seizure_windows": 8,
+      "non_seizure_windows": 111,
+      "ambiguous_windows": 3
+    }
+  },
+  "seizure_windows_detail": [
+    {
+      "window_idx": 599,
+      "start_sec": 2995.0,
+      "end_sec": 3000.0,
+      "label": 1,
+      "partition": "test"
+    },
+    {
+      "window_idx": 600,
+      "start_sec": 3000.0,
+      "end_sec": 3005.0,
+      "label": 1,
+      "partition": "test"
+    },
+    {
+      "window_idx": 601,
+      "start_sec": 3005.0,
+      "end_sec": 3010.0,
+      "label": 1,
+      "partition": "test"
+    },
+    {
+      "window_idx": 602,
+      "start_sec": 3010.0,
+      "end_sec": 3015.0,
+      "label": 1,
+      "partition": "test"
+    },
+    {
+      "window_idx": 603,
+      "start_sec": 3015.0,
+      "end_sec": 3020.0,
+      "label": 1,
+      "partition": "test"
+    },
+    {
+      "window_idx": 604,
+      "start_sec": 3020.0,
+      "end_sec": 3025.0,
+      "label": 1,
+      "partition": "test"
+    },
+    {
+      "window_idx": 605,
+      "start_sec": 3025.0,
+      "end_sec": 3030.0,
+      "label": 1,
+      "partition": "test"
+    },
+    {
+      "window_idx": 606,
+      "start_sec": 3030.0,
+      "end_sec": 3035.0,
+      "label": 1,
+      "partition": "test"
+    }
+  ],
+  "ambiguous_windows_detail": [
+    {
+      "window_idx": 598,
+      "start_sec": 2990.0,
+      "end_sec": 2995.0,
+      "label": -1,
+      "partition": "test",
+      "reason": "buffer zone (within 5s of seizure onset 2996s or offset 3036s)"
+    },
+    {
+      "window_idx": 607,
+      "start_sec": 3035.0,
+      "end_sec": 3040.0,
+      "label": -1,
+      "partition": "test",
+      "reason": "buffer zone (within 5s of seizure onset 2996s or offset 3036s)"
+    },
+    {
+      "window_idx": 608,
+      "start_sec": 3040.0,
+      "end_sec": 3045.0,
+      "label": -1,
+      "partition": "test",
+      "reason": "buffer zone (within 5s of seizure onset 2996s or offset 3036s)"
+    }
+  ],
+  "audit_finding": "CRITICAL BUG CONFIRMED: In chb01_03.edf, the single verified seizure occurs from 2996s to 3036s. A chronological 60%/20%/20% split places the seizure ENTIRELY inside the test partition (2440s to 3050s). The training partition has 0 seizure windows (366 non-seizure), and the validation partition has 0 seizure windows (122 non-seizure). Therefore, a supervised binary model CANNOT be trained or threshold-calibrated on this split. The previous run artificially split the 8 positive windows 4/2/2, causing intra-event temporal leakage across partitions."
+}

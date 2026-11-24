@@ -1,0 +1,21 @@
+CHB-MIT SCALP EEG SEIZURE DETECTION — TEST CLASSIFICATION REPORT
+Evaluation: Patient-Level Holdout (Patient chb02, Recording chb02_16.edf)
+Decision Threshold: 0.50 (tuned on separate patient chb01 recording chb01_04.edf)
+Window Duration: 5.0s (non-overlapping)
+----------------------------------------------------------------------
+
+                 precision    recall  f1-score   support
+
+Non-Seizure (0)     0.9259    1.0000    0.9615        25
+    Seizure (1)     1.0000    0.8462    0.9167        13
+
+       accuracy                         0.9474        38
+      macro avg     0.9630    0.9231    0.9391        38
+   weighted avg     0.9513    0.9474    0.9462        38
+
+
+Confusion Matrix: TN=25, FP=0, FN=2, TP=11
+Balanced Accuracy: 0.9231
+ROC-AUC: 1.0
+
+DISCLAIMER: RESEARCH PROTOTYPE ONLY: This software is developed solely for academic research and educational experimentation on the CHB-MIT EEG database. It is NOT a medical device, is NOT clinically validated or FDA-approved, and must NEVER be used for clinical diagnosis, treatment decisions, or emergency patient monitoring. Predicted scores reflect academic model outputs and are not calibrated clinical probabilities.

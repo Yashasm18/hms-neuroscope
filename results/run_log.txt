@@ -1,0 +1,56 @@
+2026-10-22 19:24:28,019 [INFO] ================================================================================
+2026-10-22 19:24:28,021 [INFO] CHB-MIT SCALP EEG SEIZURE DETECTION EXPERIMENT
+2026-10-22 19:24:28,021 [INFO] ================================================================================
+2026-10-22 19:24:28,021 [INFO] 
+--- STEP 1: Auditing Single-Recording Chronological Split (chb01_03.edf) ---
+2026-10-22 19:24:28,280 [INFO] Audit completed: CRITICAL BUG CONFIRMED: In chb01_03.edf, the single verified seizure occurs from 2996s to 3036s. A chronological 60%/20%/20% split places the seizure ENTIRELY inside the test partition (2440s to 3050s). The training partition has 0 seizure windows (366 non-seizure), and the validation partition has 0 seizure windows (122 non-seizure). Therefore, a supervised binary model CANNOT be trained or threshold-calibrated on this split. The previous run artificially split the 8 positive windows 4/2/2, causing intra-event temporal leakage across partitions.
+2026-10-22 19:24:28,280 [INFO] Train [0-1830s]: 0 seizure, 366 non-seizure
+2026-10-22 19:24:28,280 [INFO] Val [1830-2440s]: 0 seizure, 122 non-seizure
+2026-10-22 19:24:28,281 [INFO] Test [2440-3050s]: 8 seizure, 111 non-seizure, 3 ambiguous excluded
+2026-10-22 19:24:28,281 [INFO] 
+--- STEP 2: Loading Multi-Recording CHB-MIT Dataset with Patient-Level Holdout ---
+2026-10-22 19:24:28,281 [INFO] Loading Train recording: chb01_03.edf...
+2026-10-22 19:24:28,394 [INFO] Loading Validation recording: chb01_04.edf...
+2026-10-22 19:24:28,504 [INFO] Loading Test recording (Unseen Patient chb02): chb02_16.edf...
+2026-10-22 19:24:28,530 [INFO] 
+--- STEP 3: Segmenting EEG Windows (5.0s non-overlapping, 5.0s boundary buffer) ---
+2026-10-22 19:24:28,533 [INFO] Train (chb01_03.edf): 610 windows (8 seizure, 599 non-seizure, 3 ambiguous excluded)
+2026-10-22 19:24:28,533 [INFO] Val   (chb01_04.edf): 302 windows (6 seizure, 294 non-seizure, 2 ambiguous excluded)
+2026-10-22 19:24:28,534 [INFO] Test  (chb02_16.edf): 39 windows (13 seizure, 25 non-seizure, 1 ambiguous excluded)
+2026-10-22 19:24:28,535 [INFO] 
+--- STEP 4: Multichannel Feature Extraction ---
+2026-10-22 19:24:48,176 [INFO] Extracted 546 features per window across 18 channels.
+2026-10-22 19:24:48,193 [INFO] 
+--- STEP 5: Fitting Pipeline Exclusively on Training Data ---
+2026-10-22 19:24:48,377 [INFO] Trained RandomForestClassifier on 607 samples (8 pos, 599 neg).
+2026-10-22 19:24:48,377 [INFO] 
+--- STEP 6: Calibrating Decision Threshold on Validation Data (chb01_04.edf) ---
+2026-10-22 19:24:48,395 [INFO] Threshold search complete: optimal threshold = 0.50 (Val F1 = 0.9231)
+2026-10-22 19:24:48,395 [INFO] 
+--- STEP 7: Evaluating on Held-Out Test Partition (Patient chb02) ---
+2026-10-22 19:24:48,464 [INFO] Test Accuracy:         0.9474
+2026-10-22 19:24:48,464 [INFO] Test Balanced Acc:     0.9231
+2026-10-22 19:24:48,464 [INFO] Test Sensitivity/Rec:  0.8462 (11/13)
+2026-10-22 19:24:48,464 [INFO] Test Specificity:      1.0000 (25/25)
+2026-10-22 19:24:48,464 [INFO] Test Precision:        1.0000 (11/11)
+2026-10-22 19:24:48,464 [INFO] Test F1-Score:         0.9167
+2026-10-22 19:24:48,464 [INFO] Test ROC-AUC:          1.0
+2026-10-22 19:24:48,464 [INFO] Confusion Matrix:      TN=25, FP=0, FN=2, TP=11
+2026-10-22 19:24:48,464 [INFO] Event Sensitivity:     100.00%
+2026-10-22 19:24:48,464 [INFO] False Alarms (Events): 0
+2026-10-22 19:24:48,464 [INFO] FAR per Hour:          0.00 / hr
+2026-10-22 19:24:48,464 [INFO] 
+--- STEP 8: Saving Reproducible Artifacts in results/ ---
+2026-10-22 19:24:49,527 [INFO] All 7 reproducible artifacts successfully written to results/:
+2026-10-22 19:24:49,527 [INFO]   - confusion_matrix.png (39,583 bytes)
+2026-10-22 19:24:49,527 [INFO]   - metrics.json (2,976 bytes)
+2026-10-22 19:24:49,527 [INFO]   - experiment_config.json (1,261 bytes)
+2026-10-22 19:24:49,527 [INFO]   - seizure_timeline.png (61,488 bytes)
+2026-10-22 19:24:49,527 [INFO]   - audit_chb01_03.json (3,541 bytes)
+2026-10-22 19:24:49,527 [INFO]   - trained_model.joblib (133,937 bytes)
+2026-10-22 19:24:49,527 [INFO]   - run_log.txt (4,063 bytes)
+2026-10-22 19:24:49,528 [INFO]   - classification_report.txt (1,187 bytes)
+2026-10-22 19:24:49,528 [INFO] 
+================================================================================
+2026-10-22 19:24:49,528 [INFO] PATIENT-LEVEL HOLDOUT EXPERIMENT COMPLETED SUCCESSFULLY!
+2026-10-22 19:24:49,528 [INFO] ================================================================================
