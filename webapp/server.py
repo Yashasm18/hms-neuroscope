@@ -150,6 +150,8 @@ _OVERVIEW_CACHE: "dict[tuple, dict]" = {}
 @app.get("/api/overview")
 def api_overview(rec: str = S.DEFAULT_RECORDING):
     """Dashboard payload; cached per (recording, model version) because it only changes with those."""
+    if rec not in S.BUNDLED:  # only bundled recordings are cached; uploads and demos are built fresh
+        return _build_overview(rec)
     key = (rec, S.MODEL.version)
     if key not in _OVERVIEW_CACHE:
         payload = _build_overview(rec)
