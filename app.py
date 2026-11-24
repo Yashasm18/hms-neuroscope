@@ -64,6 +64,11 @@ from src.visualization.plots import (
 )
 from scripts.run_real_experiment import run_experiment
 
+# On the public hosted demo (PUBLIC_DEMO=1) retraining is disabled so visitors
+# cannot overwrite the shared model and results for everyone else.
+READ_ONLY = os.environ.get("PUBLIC_DEMO") == "1"
+READ_ONLY_HELP = "Disabled on the public demo. Run the project locally to retrain."
+
 from src.visualization.ui import (
     inject_theme,
     render_hero,
@@ -357,7 +362,7 @@ if "Dashboard" in selected_page:
                 unsafe_allow_html=True,
             )
         with col_act2:
-            run_clicked = st.button("Run experiment", icon=":material/rocket_launch:", type="primary", use_container_width=True)
+            run_clicked = st.button("Run experiment", icon=":material/rocket_launch:", type="primary", use_container_width=True, disabled=READ_ONLY, help=READ_ONLY_HELP if READ_ONLY else None)
         if run_clicked:
             with st.status("Executing Real CHB-MIT Experiment Pipeline...", expanded=True) as status:
                 st.write("1. Loading raw EDF with MNE-Python & cross-verifying annotations...")
@@ -805,7 +810,7 @@ elif "Model Training" in selected_page:
                 """
             )
 
-        if st.button("🚀 Train Real CHB-MIT Baseline Model", type="primary", use_container_width=True):
+        if st.button("🚀 Train Real CHB-MIT Baseline Model", type="primary", use_container_width=True, disabled=READ_ONLY, help=READ_ONLY_HELP if READ_ONLY else None):
             with st.status("Training Real CHB-MIT Model...", expanded=True) as status:
                 st.write("1. Auditing single-recording chronological split...")
                 st.write("2. Loading multi-recording dataset (chb01_03, chb01_04, chb02_16)...")
@@ -854,7 +859,7 @@ elif "Model Training" in selected_page:
             val_ratio = st.slider("Validation Patient Ratio", min_value=0.2, max_value=0.5, value=0.33, step=0.05)
             seed = st.number_input("Random Seed", value=42, step=1)
 
-        if st.button("🚀 Start Synthetic Benchmark Pipeline"):
+        if st.button("🚀 Start Synthetic Benchmark Pipeline", disabled=READ_ONLY, help=READ_ONLY_HELP if READ_ONLY else None):
             with st.status("Executing synthetic benchmark training...", expanded=True) as status:
                 st.write("1. Preparing multi-patient segmented windows...")
                 patients_config = [

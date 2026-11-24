@@ -104,9 +104,11 @@ def load_edf_recording(
         raise FileNotFoundError(f"EDF file does not exist: {path}")
 
     # Read raw with MNE
+    # Read the header only; signal data is loaded after channel picking and cropping
+    # so a long or wide file cannot exhaust memory before the limits apply.
     raw = mne.io.read_raw_edf(
         str(path),
-        preload=preload,
+        preload=False,
         verbose="ERROR",
     )
 
@@ -141,13 +143,15 @@ def load_edf_recording(
 
     raw.pick(available_targets)
 
+    # Optional duration clipping (for fast testing / memory safety), before loading data
+    if max_duration_sec is not None and raw.times[-1] > max_duration_sec:
+        raw.crop(tmin=0.0, tmax=max_duration_sec)
+
+    raw.load_data(verbose="ERROR")
+
     # Optional resampling
     if resample_to is not None and abs(raw.info["sfreq"] - resample_to) > 1.0:
         raw.resample(resample_to, npad="auto", verbose="ERROR")
-
-    # Optional duration clipping (for fast testing / memory safety)
-    if max_duration_sec is not None and raw.times[-1] > max_duration_sec:
-        raw.crop(tmin=0.0, tmax=max_duration_sec)
 
     # Extract data in microvolts (MNE stores in Volts by default: 1 V = 1e6 uV)
     data = raw.get_data() * 1e6  # (n_channels, n_samples)
