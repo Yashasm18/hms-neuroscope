@@ -9,6 +9,7 @@ Keeps memory low enough for small hosts (512 MB):
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import threading
@@ -204,6 +205,7 @@ class ModelHolder:
         self.bundle: Optional[TrainedModelBundle] = None
         self.version = 0
         self.source = ""
+        self.fingerprint: Optional[str] = None  # hash of the model file, keys the on-disk score cache
         self._lock = threading.Lock()
 
     def get(self) -> Optional[TrainedModelBundle]:
@@ -218,17 +220,23 @@ class ModelHolder:
                 try:
                     self.bundle = load_model_bundle(path)
                     self.source = str(path.relative_to(BASE_DIR))
+                    self.fingerprint = file_fingerprint(path)
                     self.version += 1
                     return
                 except Exception as exc:  # pragma: no cover - corrupt artifact
                     print(f"Could not load model {path}: {exc}")
 
-    def set(self, bundle: TrainedModelBundle, source: str):
+    def set(self, bundle: TrainedModelBundle, source: str, model_path: Optional[Path] = None):
         with self._lock:
             self.bundle = bundle
             self.source = source
+            self.fingerprint = file_fingerprint(model_path) if model_path and model_path.exists() else None
             self.version += 1
         SCORES.clear()
+
+
+def file_fingerprint(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()[:16]
 
 
 MODEL = ModelHolder()
@@ -359,18 +367,71 @@ def score_recording(
     return WindowScores(np.array(starts), np.array(ends), np.array(probs), warnings)
 
 
+SCORE_CACHE_DIR = RESULTS_DIR / "score_cache"
+
+
+def _disk_cache_path(rec_id: str) -> Optional[Path]:
+    # Only bundled recordings with a model loaded from a file get a reusable on-disk cache.
+    if rec_id not in BUNDLED or not MODEL.fingerprint:
+        return None
+    return SCORE_CACHE_DIR / f"{rec_id}-{MODEL.fingerprint}.npz"
+
+
+def _read_disk_scores(path: Optional[Path]) -> Optional[WindowScores]:
+    if path is None or not path.exists():
+        return None
+    try:
+        with np.load(path, allow_pickle=False) as z:
+            return WindowScores(z["starts"], z["ends"], z["probs"], json.loads(str(z["warnings"])))
+    except Exception:
+        return None
+
+
+def _write_disk_scores(path: Optional[Path], scores: WindowScores) -> None:
+    if path is None:
+        return
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        np.savez(path, starts=scores.starts, ends=scores.ends, probs=scores.probs,
+                 warnings=np.array(json.dumps(scores.warnings)))
+    except OSError:
+        pass
+
+
 def get_scores(rec: LoadedRecording, bundle: TrainedModelBundle) -> WindowScores:
+    """
+    Window scores for a recording under the active model. Looked up in memory, then in
+    results/score_cache (precomputed for the bundled recordings and keyed by the model
+    file's hash, so a retrained model never reuses stale scores), else computed.
+    """
     key = (rec.rec_id, MODEL.version)
     cached = SCORES.get(key)
     if cached is not None:
         return cached
-    with HEAVY_LOCK:
-        cached = SCORES.get(key)
-        if cached is not None:
-            return cached
-        scores = score_recording(rec.eeg, bundle)
+    disk = _disk_cache_path(rec.rec_id)
+    scores = _read_disk_scores(disk)
+    if scores is None:
+        with HEAVY_LOCK:
+            cached = SCORES.get(key)
+            if cached is not None:
+                return cached
+            scores = score_recording(rec.eeg, bundle)
+        _write_disk_scores(disk, scores)
     SCORES.put(key, scores)
     return scores
+
+
+def precompute_bundled_scores() -> List[str]:
+    """Score every bundled recording with the active model and store the results on disk."""
+    bundle = MODEL.get()
+    written = []
+    for rec_id in BUNDLED:
+        rec = STORE.get(rec_id)
+        get_scores(rec, bundle)
+        path = _disk_cache_path(rec_id)
+        if path and path.exists():
+            written.append(str(path.relative_to(BASE_DIR)))
+    return written
 
 
 def apply_threshold(scores: WindowScores, threshold: float, window_sec: float = DEFAULT_WINDOW_DURATION_SEC):

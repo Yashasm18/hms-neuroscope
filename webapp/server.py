@@ -263,11 +263,25 @@ def api_explore(
     )
 
     psd_name = psd_channel if psd_channel in names else names[0]
-    sig = eeg.data[eeg.channel_names.index(psd_name)]
-    if filtered:
-        sig = preprocess_eeg_signal(sig[np.newaxis, :], sfreq=sf, lowcut=0.5, highcut=40.0, notch_freq=60.0)[0]
-    psd = plot_psd_spectrum(sig=sig, sfreq=sf, max_freq=45.0, title=f"Power spectral density · {psd_name}")
-    return {"start": start, "eeg": fig_json(fig), "psd": fig_json(psd), "psd_channel": psd_name}
+    return {"start": start, "eeg": fig_json(fig), "psd": psd_figure(recording, psd_name, filtered), "psd_channel": psd_name}
+
+
+_PSD_CACHE: "dict[tuple, dict]" = {}
+
+
+def psd_figure(recording: S.LoadedRecording, channel: str, filtered: bool) -> dict:
+    """Welch PSD over the whole channel; cached because the slider does not change it."""
+    key = (recording.rec_id, channel, filtered, recording.eeg.data.shape[1])
+    if key not in _PSD_CACHE:
+        eeg = recording.eeg
+        sig = eeg.data[eeg.channel_names.index(channel)]
+        if filtered:
+            sig = preprocess_eeg_signal(sig[np.newaxis, :], sfreq=eeg.sampling_rate, lowcut=0.5, highcut=40.0, notch_freq=60.0)[0]
+        if len(_PSD_CACHE) > 128:
+            _PSD_CACHE.clear()
+        _PSD_CACHE[key] = fig_json(plot_psd_spectrum(sig=sig, sfreq=eeg.sampling_rate, max_freq=45.0,
+                                                     title=f"Power spectral density · {channel}"))
+    return _PSD_CACHE[key]
 
 
 # ---------------------------------------------------------------------------
@@ -401,7 +415,7 @@ def api_train_real():
 
     with S.HEAVY_LOCK:
         bundle = run_experiment("results")
-    S.MODEL.set(bundle, "results/trained_model.joblib")
+    S.MODEL.set(bundle, "results/trained_model.joblib", S.RESULTS_DIR / "trained_model.joblib")
     return {"model": S.model_info(bundle), "metrics": S.real_metrics()}
 
 

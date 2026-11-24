@@ -77,3 +77,13 @@ def test_threshold_changes_reuse_cached_scores():
     assert lo["windows"] == hi["windows"]
     assert lo["total_seizure_sec"] >= hi["total_seizure_sec"]
     assert any(e["matches_truth"] for e in lo["episodes"])
+
+
+def test_bundled_score_caches_match_current_model():
+    """Shipped score caches must exist for the shipped model and match a fresh computation."""
+    bundle = S.MODEL.get()
+    path = S._disk_cache_path("chb02_16")
+    assert path is not None and path.exists(), "run: python -m webapp.precompute"
+    cached = S._read_disk_scores(path)
+    fresh = S.score_recording(S.STORE.get("chb02_16").eeg, bundle)
+    np.testing.assert_array_equal(cached.probs, fresh.probs)
