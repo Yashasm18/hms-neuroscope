@@ -1,5 +1,5 @@
 """
-HMS NeuroScope web server (FastAPI).
+Harmful Brain Activity Classification web server (FastAPI).
 
 Serves the single-page frontend in web/ and a JSON API on /api. Run locally with:
 
@@ -50,7 +50,7 @@ UPLOAD_LIMIT_BYTES = 60 * 1024 * 1024
 ARTIFACT_IMAGES = {"confusion_matrix.png", "seizure_timeline.png"}
 SUMMARY_PATIENTS = ["chb01", "chb02", "chb03", "chb06", "chb10"]
 
-app = FastAPI(title="HMS NeuroScope", docs_url="/api/docs", redoc_url=None)
+app = FastAPI(title="Harmful Brain Activity Classification", docs_url="/api/docs", redoc_url=None)
 
 # Every state-changing request must carry this header. Browsers cannot add a custom
 # header to a cross-site request without a CORS preflight (which this server never

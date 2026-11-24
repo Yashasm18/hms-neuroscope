@@ -1,9 +1,9 @@
 @echo off
 setlocal
 
-title HMS NeuroScope - EEG Seizure Detection Launcher
+title Harmful Brain Activity Classification - EEG Seizure Detection Launcher
 echo ===============================================================================
-echo   HMS NeuroScope - Harmful Brain Activity Classifier and EEG Seizure Detection
+echo   Harmful Brain Activity Classification and EEG Seizure Detection
 echo   One-Click Windows Launcher
 echo ===============================================================================
 echo.

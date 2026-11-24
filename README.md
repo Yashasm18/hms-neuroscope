@@ -1,6 +1,6 @@
 # HMS — Harmful Brain Activity Classification & EEG Seizure Detection Prototype
 
-An end-to-end continuous EEG seizure detection research prototype developed using the **CHB-MIT Scalp EEG Database** from PhysioNet. Includes standardized EDF ingestion, zero-phase filtering, 546-dimensional time-frequency feature extraction, balanced Random Forest classification, threshold tuning, and a premium dark web dashboard (HMS NeuroScope) built with FastAPI, a hand-crafted HTML/CSS/JS frontend and interactive Plotly charts, with photo banners on every page.
+An end-to-end continuous EEG seizure detection research prototype developed using the **CHB-MIT Scalp EEG Database** from PhysioNet. Includes standardized EDF ingestion, zero-phase filtering, 546-dimensional time-frequency feature extraction, balanced Random Forest classification, threshold tuning, and a premium dark web dashboard built with FastAPI, a hand-crafted HTML/CSS/JS frontend and interactive Plotly charts, with photo banners on every page.
 
 > **CRITICAL MEDICAL DISCLAIMER**  
 > **RESEARCH PROTOTYPE ONLY:** This software is developed strictly for academic research and educational demonstration on the CHB-MIT EEG database. It is **NOT** a medical device, is **NOT** clinically validated or FDA-cleared, and must **NEVER** be used for clinical diagnosis, patient monitoring, triage, or treatment decisions. Predicted scores reflect academic model risk outputs and are not calibrated clinical probabilities.

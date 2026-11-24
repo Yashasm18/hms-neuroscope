@@ -1,9 +1,9 @@
 @echo off
 setlocal
 
-title HMS NeuroScope - Automated Test Suite
+title Harmful Brain Activity Classification - Automated Test Suite
 echo ===============================================================================
-echo   HMS NeuroScope - Automated PyTest Verification
+echo   Harmful Brain Activity Classification - Automated PyTest Verification
 echo ===============================================================================
 echo.
 

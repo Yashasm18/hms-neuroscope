@@ -1,9 +1,9 @@
 @echo off
 setlocal
 
-title HMS NeuroScope - Real CHB-MIT Experiment Pipeline
+title Harmful Brain Activity Classification - Real CHB-MIT Experiment Pipeline
 echo ===============================================================================
-echo   HMS NeuroScope - Real Experiment Runner
+echo   Harmful Brain Activity Classification - Real Experiment Runner
 echo ===============================================================================
 echo.
 

@@ -1,4 +1,4 @@
-/* HMS NeuroScope frontend: hash-routed single page app on top of the FastAPI JSON API. */
+/* Harmful Brain Activity Classification frontend: hash-routed single page app on top of the FastAPI JSON API. */
 (() => {
   "use strict";
 
@@ -190,7 +190,7 @@
       <section class="hero" style="background-image:url('/images/hero.jpg')">
         <span class="eyebrow"><span class="dot"></span>EEG seizure detection · research prototype</span>
         <h1>Reading the <em>electric language</em> of the brain.</h1>
-        <p class="lede">HMS NeuroScope classifies harmful brain activity and flags seizure episodes in continuous scalp EEG, trained and evaluated on the CHB-MIT pediatric database from PhysioNet.</p>
+        <p class="lede">This system classifies harmful brain activity and flags seizure episodes in continuous scalp EEG, trained and evaluated on the CHB-MIT pediatric database from PhysioNet.</p>
         <div class="chip-row">
           <span class="chip">Montage <b>18 bipolar ch</b></span><span class="chip">Sampling <b>${d.system.sampling_rate.toFixed(0)} Hz</b></span>
           <span class="chip">Window <b>5 s</b></span><span class="chip">Model <b>${m ? esc(m.name.replace(/_/g, " ")) : "Not trained"}</b></span>
@@ -638,7 +638,7 @@ python run_app.py                        # open http://localhost:8501</pre></div
     const token = ++routeToken;
     $$("#nav a").forEach((a) => a.classList.toggle("active", a.dataset.page === id));
     document.body.classList.remove("nav-open");
-    document.title = `${PAGES.find((p) => p.id === id).label} · HMS NeuroScope`;
+    document.title = `${PAGES.find((p) => p.id === id).label} · Harmful Brain Activity Classification`;
     window.scrollTo({ top: 0, behavior: "instant" });
     try { await pages[id](token); state.retries = 0; }
     catch (e) {

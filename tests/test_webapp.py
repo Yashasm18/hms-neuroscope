@@ -17,7 +17,7 @@ def test_config_and_frontend_served():
     cfg = client.get("/api/config").json()
     assert cfg["default_recording"] == "chb01_03"
     page = client.get("/")
-    assert page.status_code == 200 and "HMS NeuroScope" in page.text
+    assert page.status_code == 200 and "Harmful Brain Activity" in page.text
     assert client.get("/app.js").status_code == 200
     assert client.get("/vendor/plotly.min.js").status_code == 200
 

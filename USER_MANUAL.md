@@ -78,7 +78,7 @@ python run_app.py
 The server starts and your browser opens automatically. The terminal shows:
 
 ```text
-  HMS NeuroScope is starting at http://localhost:8501
+  Harmful Brain Activity Classification is starting at http://localhost:8501
   Press Ctrl+C to stop.
 ```
 

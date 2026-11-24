@@ -1,4 +1,4 @@
-/* HMS NeuroScope · premium dark theme */
+/* Harmful Brain Activity Classification · premium dark theme */
 :root {
   --bg: #06080D;
   --bg-elev: #0C1018;
@@ -298,3 +298,5 @@ details.disclosure[open] summary { margin-bottom: 12px; }
   .page-banner { padding: 24px 20px; min-height: 150px; }
   .metric .value { font-size: 1.9rem; }
 }
+.topbar .row { flex-wrap: nowrap; min-width: 0; }
+.topbar strong { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }

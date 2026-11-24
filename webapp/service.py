@@ -1,5 +1,5 @@
 """
-Backend services for the HMS NeuroScope web app.
+Backend services for the Harmful Brain Activity Classification web app.
 
 Keeps memory low enough for small hosts (512 MB):
 - each recording is held once, as float32, in a small LRU cache shared by every visitor;
