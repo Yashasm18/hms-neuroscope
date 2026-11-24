@@ -55,7 +55,12 @@
   }
 
   function plot(el, fig, extraLayout = {}) {
-    if (!el || !fig || !window.Plotly) return;
+    if (!el || !fig) return;
+    if (!window.Plotly) {
+      if (!el.querySelector(".spinner")) el.innerHTML = `<div class="empty"><div class="spinner" style="margin:0 auto 10px"></div>Loading chart…</div>`;
+      window.plotlyReady.then(() => { if (document.body.contains(el)) { el.innerHTML = ""; plot(el, fig, extraLayout); } });
+      return;
+    }
     const layout = { ...fig.layout, ...extraLayout, autosize: true };
     delete layout.width;
     Plotly.react(el, fig.data, layout, { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] });

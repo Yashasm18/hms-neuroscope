@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0&display=block" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="preload" href="/vendor/plotly.min.js" as="script">
 </head>
 <body>
   <div class="progress" id="progress"></div>
@@ -45,7 +46,16 @@
     </div>
   </div>
   <div class="toasts" id="toasts"></div>
-  <script src="/vendor/plotly.min.js"></script>
+  <script>
+    // Load the large charting library in the background; pages render immediately
+    // and charts draw as soon as it arrives.
+    window.plotlyReady = new Promise(function (resolve) {
+      var s = document.createElement("script");
+      s.src = "/vendor/plotly.min.js"; s.async = true; s.onload = resolve;
+      s.onerror = function () { setTimeout(function () { var r = document.createElement("script"); r.src = s.src; r.onload = resolve; document.head.appendChild(r); }, 2000); };
+      document.head.appendChild(s);
+    });
+  </script>
   <script src="/app.js"></script>
 </body>
 </html>
