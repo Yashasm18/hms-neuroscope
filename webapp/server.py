@@ -91,6 +91,37 @@ def highlight(rec: S.LoadedRecording, label: str = "Seizure") -> list:
 # Status and overview
 # ---------------------------------------------------------------------------
 
+_WARM = {"ready": False, "error": None}
+
+
+def _warm_up():
+    """Load the model, default recording and its cached scores before serving traffic."""
+    try:
+        S.MODEL.get()
+        rec = S.STORE.get(S.DEFAULT_RECORDING)
+        if S.MODEL.get() is not None:
+            S.get_scores(rec)
+        api_overview(S.DEFAULT_RECORDING)
+    except Exception as exc:  # keep serving even if warm-up fails
+        _WARM["error"] = str(exc)
+    _WARM["ready"] = True
+
+
+@app.on_event("startup")
+def start_warm_up():
+    import threading
+    threading.Thread(target=_warm_up, daemon=True).start()
+
+
+@app.get("/api/health")
+def api_health():
+    """Render health check: only reports healthy once warm-up is done, so new deploys
+    receive traffic only after the data is loaded (zero-downtime switch-over)."""
+    if not _WARM["ready"]:
+        return JSONResponse(status_code=503, content={"status": "warming up"})
+    return {"status": "ok", "warm_up_error": _WARM["error"]}
+
+
 @app.get("/api/config")
 def api_config():
     return {
