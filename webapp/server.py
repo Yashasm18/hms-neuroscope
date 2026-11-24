@@ -300,7 +300,7 @@ def api_detect(req: DetectRequest):
         raise HTTPException(409, "No trained model is available. Train one on the Model Training page.")
     recording = get_recording(req.rec)
     threshold = float(req.threshold if req.threshold is not None else bundle.optimal_threshold)
-    scores = S.get_scores(recording, bundle)
+    scores = S.get_scores(recording)
     timeline, episodes = S.apply_threshold(scores, threshold)
     refs = [(s["start"], s["end"]) for s in S.seizure_intervals(recording.summary)]
 

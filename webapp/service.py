@@ -226,6 +226,13 @@ class ModelHolder:
                 except Exception as exc:  # pragma: no cover - corrupt artifact
                     print(f"Could not load model {path}: {exc}")
 
+    def snapshot(self):
+        """(bundle, version, fingerprint) read together, so they always belong to the same model."""
+        with self._lock:
+            if self.bundle is None:
+                self._load_default()
+            return self.bundle, self.version, self.fingerprint
+
     def set(self, bundle: TrainedModelBundle, source: str, model_path: Optional[Path] = None):
         with self._lock:
             self.bundle = bundle
@@ -370,11 +377,12 @@ def score_recording(
 SCORE_CACHE_DIR = RESULTS_DIR / "score_cache"
 
 
-def _disk_cache_path(rec_id: str) -> Optional[Path]:
+def _disk_cache_path(rec_id: str, fingerprint: Optional[str] = None) -> Optional[Path]:
     # Only bundled recordings with a model loaded from a file get a reusable on-disk cache.
-    if rec_id not in BUNDLED or not MODEL.fingerprint:
+    fingerprint = fingerprint if fingerprint is not None else MODEL.fingerprint
+    if rec_id not in BUNDLED or not fingerprint:
         return None
-    return SCORE_CACHE_DIR / f"{rec_id}-{MODEL.fingerprint}.npz"
+    return SCORE_CACHE_DIR / f"{rec_id}-{fingerprint}.npz"
 
 
 def _read_disk_scores(path: Optional[Path]) -> Optional[WindowScores]:
@@ -392,30 +400,35 @@ def _write_disk_scores(path: Optional[Path], scores: WindowScores) -> None:
         return
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        np.savez(path, starts=scores.starts, ends=scores.ends, probs=scores.probs,
+        tmp = path.with_name(f".{path.stem}.{uuid.uuid4().hex}.npz")
+        np.savez(tmp, starts=scores.starts, ends=scores.ends, probs=scores.probs,
                  warnings=np.array(json.dumps(scores.warnings)))
+        os.replace(tmp, path)  # atomic: readers never see a half-written file
     except OSError:
         pass
 
 
-def get_scores(rec: LoadedRecording, bundle: TrainedModelBundle) -> WindowScores:
+def get_scores(rec: LoadedRecording, bundle: Optional[TrainedModelBundle] = None) -> WindowScores:
     """
     Window scores for a recording under the active model. Looked up in memory, then in
     results/score_cache (precomputed for the bundled recordings and keyed by the model
     file's hash, so a retrained model never reuses stale scores), else computed.
     """
-    key = (rec.rec_id, MODEL.version)
+    model, version, fingerprint = MODEL.snapshot()  # one consistent view of the active model
+    key = (rec.rec_id, version)
     cached = SCORES.get(key)
     if cached is not None:
         return cached
-    disk = _disk_cache_path(rec.rec_id)
+    disk = _disk_cache_path(rec.rec_id, fingerprint)
     scores = _read_disk_scores(disk)
     if scores is None:
         with HEAVY_LOCK:
             cached = SCORES.get(key)
             if cached is not None:
                 return cached
-            scores = score_recording(rec.eeg, bundle)
+            scores = score_recording(rec.eeg, model)
+        if MODEL.version != version:
+            return scores  # model changed while scoring: return, but cache nothing under either key
         _write_disk_scores(disk, scores)
     SCORES.put(key, scores)
     return scores
@@ -427,7 +440,7 @@ def precompute_bundled_scores() -> List[str]:
     written = []
     for rec_id in BUNDLED:
         rec = STORE.get(rec_id)
-        get_scores(rec, bundle)
+        get_scores(rec)
         path = _disk_cache_path(rec_id)
         if path and path.exists():
             written.append(str(path.relative_to(BASE_DIR)))
