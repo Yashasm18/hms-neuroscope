@@ -171,11 +171,13 @@
   // ------------------------------------------------------------------ pages
   const pages = {};
 
-  pages.dashboard = async () => {
+  pages.dashboard = async (t) => {
     app.innerHTML = `<div class="skeleton" style="height:380px;margin-bottom:26px"></div><div class="grid g4">${'<div class="skeleton" style="height:120px"></div>'.repeat(4)}</div>`;
     await ensureRecording();
+    if (isStale(t)) return;
     const d = await api(`/api/overview?rec=${encodeURIComponent(state.rec)}`);
     state.model = d.model; renderStatus();
+    if (isStale(t)) return;
     const c = d.cards, m = d.model, ro = state.config.public_demo;
     const steps = [
       ["01", "Load & verify", "MNE reads the EDF; summary and WFDB annotations are cross-checked."],
@@ -246,8 +248,9 @@
     });
   }
 
-  pages.data = async () => {
+  pages.data = async (t) => {
     const d = await api("/api/data");
+    if (isStale(t)) return;
     const ro = state.config.public_demo;
     app.innerHTML = `<div class="page">
       ${banner("Data manager", "EEG data &amp; <em>EDF upload</em>", "Inspect the bundled PhysioNet CHB-MIT recordings, upload your own .edf file, or load synthetic benchmark recordings.", "data")}
@@ -322,8 +325,9 @@
     }
   }
 
-  pages.signals = async () => {
+  pages.signals = async (t) => {
     const info = await ensureRecording();
+    if (isStale(t)) return;
     const ex = store.get(`nsc.ex.${info.id}`, null) || {
       channels: info.channels.slice(0, Math.min(10, info.channels.length)),
       span: 10, start: info.kind === "real" && info.duration_sec >= 3000 ? 2990 : 0, filtered: true, psd: null,
@@ -381,11 +385,11 @@
         try {
           const q = new URLSearchParams({ rec: info.id, start: ex.start, span: ex.span, channels: ex.channels.join(","), filtered: ex.filtered, psd_channel: ex.psd });
           const r = await api(`/api/explore?${q}`);
-          if (my !== seq) return;
+          if (my !== seq || isStale(t)) return;
           $("#eeg").innerHTML = "";
           plot($("#eeg"), r.eeg); plot($("#psd"), r.psd);
-        } catch (e) { toast(e.message, "err"); }
-        finally { if (my === seq) { overlay($("#eeg-wrap"), false); overlay($("#psd-wrap"), false); } }
+        } catch (e) { if (!isStale(t)) toast(e.message, "err"); }
+        finally { if (my === seq && !isStale(t)) { overlay($("#eeg-wrap"), false); overlay($("#psd-wrap"), false); } }
       }, delay);
     };
     startEl.addEventListener("input", () => { ex.start = +startEl.value; $("#start-val").textContent = `${ex.start} – ${ex.start + ex.span} s`; draw(250); });
@@ -405,9 +409,10 @@
     draw();
   };
 
-  pages.training = async () => {
+  pages.training = async (t) => {
     const ro = state.config.public_demo;
     const classifiers = await api("/api/classifiers");
+    if (isStale(t)) return;
     app.innerHTML = `<div class="page">
       ${banner("Model training", "Training &amp; <em>cross-validation</em>", "Train baseline classifiers on the real CHB-MIT Scalp EEG recordings or on the multi-patient synthetic benchmark generator.", "training")}
       ${readOnlyNote()}
@@ -467,9 +472,10 @@
     }));
   };
 
-  pages.detection = async () => {
+  pages.detection = async (t) => {
     const info = await ensureRecording();
     if (!state.model) state.model = await api("/api/model");
+    if (isStale(t)) return;
     const m = state.model;
     if (!m) { app.innerHTML = `<div class="page">${banner("Detection", "Continuous <em>seizure detection</em>", "", "detection")}<div class="empty">${icon("model_training")}No trained model. Train one on the <a href="#/training">Model Training</a> page.</div></div>`; return; }
     let threshold = store.get("nsc.threshold", m.threshold);
@@ -495,7 +501,7 @@
         if (out.querySelector(".chart")) overlay(out, true);
         try {
           const r = await api("/api/detect", { json: { rec: info.id, threshold } });
-          if (my !== seq) return;
+          if (my !== seq || isStale(t)) return;
           const hasTruth = r.recording.seizures.length > 0;
           out.style.position = "relative";
           out.innerHTML = `
@@ -509,7 +515,7 @@
               : `<div class="banner green">${icon("check_circle")}<div>No seizure episodes above threshold ${r.threshold.toFixed(2)} in this recording${hasTruth ? " (the recording does contain an annotated seizure, so try a lower threshold)" : ""}.</div></div>`}`;
           if (r.timeline) plot($("#timeline"), r.timeline);
         } catch (e) {
-          out.innerHTML = `<div class="banner rose">${icon("error")}<div>${esc(e.message)}</div></div>`;
+          if (!isStale(t)) out.innerHTML = `<div class="banner rose">${icon("error")}<div>${esc(e.message)}</div></div>`;
         }
       }, delay);
     };
@@ -518,8 +524,9 @@
     run();
   };
 
-  pages.evaluation = async () => {
+  pages.evaluation = async (t) => {
     const d = await api("/api/evaluation");
+    if (isStale(t)) return;
     const real = d.real, active = d.active;
     app.innerHTML = `<div class="page">
       ${banner("Evaluation", "Model <em>evaluation</em> &amp; metrics", "Reproducible window-level metrics and event-level clinical statistics, with training, validation and test splits kept strictly apart.", "evaluation")}
@@ -615,6 +622,9 @@ python run_app.py                        # open http://localhost:8501</pre></div
   };
 
   // ------------------------------------------------------------------ router
+  let routeToken = 0;
+  const isStale = (t) => t !== routeToken;
+
   async function route(force = false) {
     const legacy = new URLSearchParams(location.search).get("page");
     let id = (location.hash.match(/^#\/([\w-]+)/) || [])[1];
@@ -625,12 +635,19 @@ python run_app.py                        # open http://localhost:8501</pre></div
     if (!PAGES.some((p) => p.id === id)) id = "dashboard";
     if (id === state.page && !force) return;
     state.page = id;
+    const token = ++routeToken;
     $$("#nav a").forEach((a) => a.classList.toggle("active", a.dataset.page === id));
     document.body.classList.remove("nav-open");
     document.title = `${PAGES.find((p) => p.id === id).label} · HMS NeuroScope`;
     window.scrollTo({ top: 0, behavior: "instant" });
-    try { await pages[id](); }
+    try { await pages[id](token); state.retries = 0; }
     catch (e) {
+      if (isStale(token)) return;
+      if ([502, 503, 504].includes(e.status) && (state.retries = (state.retries || 0) + 1) <= 12) {
+        app.innerHTML = `<div class="page"><div class="card row"><div class="spinner"></div><div><strong>The server is waking up or updating…</strong><br><span class="muted">The free hosting tier sleeps when idle. Retrying automatically (attempt ${state.retries} of 12).</span></div></div></div>`;
+        setTimeout(() => { if (!isStale(token)) route(true); }, 5000);
+        return;
+      }
       app.innerHTML = `<div class="page"><div class="banner rose">${icon("error")}<div><strong>Could not load this page.</strong> ${esc(e.message)}</div></div><button class="btn mt" onclick="location.reload()">${icon("refresh")}Retry</button></div>`;
     }
   }
