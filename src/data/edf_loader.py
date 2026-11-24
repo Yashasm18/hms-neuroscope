@@ -95,6 +95,7 @@ def load_edf_recording(
     resample_to: Optional[float] = None,
     max_duration_sec: Optional[float] = None,
     preload: bool = True,
+    dtype: Optional[type] = None,
 ) -> StandardizedEEG:
     """
     Load an EDF file via MNE-Python, validate channels, and return standardized microvolt signals.
@@ -147,14 +148,27 @@ def load_edf_recording(
     if max_duration_sec is not None and raw.times[-1] > max_duration_sec:
         raw.crop(tmin=0.0, tmax=max_duration_sec)
 
-    raw.load_data(verbose="ERROR")
+    needs_resample = resample_to is not None and abs(raw.info["sfreq"] - resample_to) > 1.0
 
-    # Optional resampling
-    if resample_to is not None and abs(raw.info["sfreq"] - resample_to) > 1.0:
-        raw.resample(resample_to, npad="auto", verbose="ERROR")
-
-    # Extract data in microvolts (MNE stores in Volts by default: 1 V = 1e6 uV)
-    data = raw.get_data() * 1e6  # (n_channels, n_samples)
+    if dtype is not None and not needs_resample:
+        # Lean path: read one channel at a time straight into the target dtype,
+        # so peak memory is about one copy of the recording in that dtype.
+        data = np.empty((len(raw.ch_names), raw.n_times), dtype=dtype)
+        for i in range(len(raw.ch_names)):
+            data[i] = raw.get_data(picks=[i], verbose="ERROR")[0] * 1e6
+    else:
+        raw.load_data(verbose="ERROR")
+        if needs_resample:
+            raw.resample(resample_to, npad="auto", verbose="ERROR")
+        # Extract data in microvolts (MNE stores in Volts by default: 1 V = 1e6 uV);
+        # scale in place to avoid holding a second full-size copy.
+        data = raw.get_data()  # (n_channels, n_samples)
+        data *= 1e6
+        if dtype is not None:
+            data = data.astype(dtype, copy=False)
+    sfreq = float(raw.info["sfreq"])
+    duration_sec = float(raw.times[-1])
+    del raw
 
     # Handle NaNs and Infs if any exist
     if np.isnan(data).any() or np.isinf(data).any():
@@ -167,8 +181,8 @@ def load_edf_recording(
     return StandardizedEEG(
         file_name=path.name,
         patient_id=patient_id,
-        sampling_rate=float(raw.info["sfreq"]),
-        duration_sec=float(raw.times[-1]),
+        sampling_rate=sfreq,
+        duration_sec=duration_sec,
         total_samples=data.shape[1],
         channel_names=available_targets,
         data=data,

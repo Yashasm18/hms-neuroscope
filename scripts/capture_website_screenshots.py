@@ -67,7 +67,7 @@ async def capture_all():
             async def select_radio_by_text(keyword):
                 js = f"""
                 (() => {{
-                    const labels = Array.from(document.querySelectorAll('div[data-testid="stRadio"] label'));
+                    const labels = Array.from(document.querySelectorAll('#nav a'));
                     const found = labels.find(l => l.innerText.includes('{keyword}'));
                     if (found) {{
                         found.click();
@@ -136,7 +136,7 @@ async def capture_all():
             # Wait for calculation to finish (check for table or timeline)
             for _ in range(25):
                 await asyncio.sleep(1)
-                chk_js = "document.querySelectorAll('div[data-testid=\"stMetric\"]').length > 0"
+                chk_js = "document.querySelectorAll('.card.metric').length > 0"
                 chk_res = await send_cmd("Runtime.evaluate", {"expression": chk_js, "returnByValue": True})
                 if chk_res.get("result", {}).get("result", {}).get("value"):
                     print("Seizure calculation finished, metrics loaded!")

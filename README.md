@@ -1,6 +1,6 @@
 # HMS — Harmful Brain Activity Classification & EEG Seizure Detection Prototype
 
-An end-to-end continuous EEG seizure detection research prototype developed using the **CHB-MIT Scalp EEG Database** from PhysioNet. Includes standardized EDF ingestion, zero-phase filtering, 546-dimensional time-frequency feature extraction, balanced Random Forest classification, threshold tuning, and a premium dark Streamlit web dashboard (HMS NeuroScope) with photo banners on every page.
+An end-to-end continuous EEG seizure detection research prototype developed using the **CHB-MIT Scalp EEG Database** from PhysioNet. Includes standardized EDF ingestion, zero-phase filtering, 546-dimensional time-frequency feature extraction, balanced Random Forest classification, threshold tuning, and a premium dark web dashboard (HMS NeuroScope) built with FastAPI, a hand-crafted HTML/CSS/JS frontend and interactive Plotly charts, with photo banners on every page.
 
 > **CRITICAL MEDICAL DISCLAIMER**  
 > **RESEARCH PROTOTYPE ONLY:** This software is developed strictly for academic research and educational demonstration on the CHB-MIT EEG database. It is **NOT** a medical device, is **NOT** clinically validated or FDA-cleared, and must **NEVER** be used for clinical diagnosis, patient monitoring, triage, or treatment decisions. Predicted scores reflect academic model risk outputs and are not calibrated clinical probabilities.
@@ -31,15 +31,15 @@ python -m venv .venv
 # 2. Install verified dependencies
 pip install -r requirements.txt
 
-# 3. Launch the dashboard
-python -m streamlit run app.py
+# 3. Launch the dashboard (opens your browser automatically)
+python run_app.py
 ```
-Open **`http://localhost:8501`** in Google Chrome or Microsoft Edge.
+If it does not open by itself, go to **`http://localhost:8501`** in Google Chrome or Microsoft Edge.
 
 ### Troubleshooting on Windows
 - **"Python was not found"** → reinstall Python with *Add python.exe to PATH* ticked, or use the `py` launcher.
 - **PowerShell blocks `Activate.ps1`** → run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once, or just use `START_PROJECT.bat`.
-- **Port 8501 busy** → `.venv\Scripts\python -m streamlit run app.py --server.port=8502`.
+- **Port 8501 busy** → `.venv\Scripts\python run_app.py --port 8502`.
 - **Website fonts** load from Google Fonts; offline, the app falls back to system fonts. Photos are bundled in `assets/images` and work offline.
 
 ---
@@ -86,8 +86,8 @@ Open **`http://localhost:8501`** in Google Chrome or Microsoft Edge.
 
 | Script | Command | Purpose |
 |---|---|---|
-| **One-Click App Launch** | `START_PROJECT.bat` | Sets up venv, installs deps, and starts Streamlit |
-| **Run All Unit Tests** | `RUN_TESTS.bat` or `pytest -v` | Executes 27 automated tests in ~4.0s |
+| **One-Click App Launch** | `START_PROJECT.bat` | Sets up venv, installs deps, and starts the web app |
+| **Run All Unit Tests** | `RUN_TESTS.bat` or `pytest -v` | Executes 34 automated tests (incl. web API) in ~5s |
 | **Re-Run Experiment** | `RUN_EXPERIMENT.bat` | Re-fits model, tunes threshold, updates `results/` |
 | **Test Any Custom EDF** | `python scripts/predict_recording.py --edf <path>` | CLI explicit inference on any new recording |
 

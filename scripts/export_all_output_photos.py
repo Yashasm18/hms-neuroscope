@@ -204,7 +204,7 @@ async def capture_page_screenshot(url: str, output_path: Path, wait_sec: float =
             await send_cmd("Page.enable")
             await send_cmd("Runtime.enable")
             
-            # Wait for streamlit page render
+            # Wait for the page to render
             await asyncio.sleep(wait_sec)
             
             if click_action == "execute_seizure_analysis":
@@ -224,7 +224,7 @@ async def capture_page_screenshot(url: str, output_path: Path, wait_sec: float =
                 # Poll until metric appears or timeout 20s
                 for _ in range(20):
                     await asyncio.sleep(1)
-                    chk_js = "document.querySelectorAll('div[data-testid=\"stMetric\"]').length > 0"
+                    chk_js = "document.querySelectorAll('.card.metric').length > 0"
                     chk_res = await send_cmd("Runtime.evaluate", {"expression": chk_js, "returnByValue": True})
                     if chk_res.get("result", {}).get("result", {}).get("value"):
                         break

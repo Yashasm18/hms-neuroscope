@@ -18,5 +18,8 @@ else
     pip install -r requirements.txt
 fi
 
-echo "Starting Streamlit on http://localhost:8501 ..."
-streamlit run app.py --server.port=8501
+# Make sure newly added dependencies are present
+python -c "import fastapi, uvicorn, multipart" 2>/dev/null || pip install -r requirements.txt
+
+echo "Starting HMS NeuroScope on http://localhost:8501 ..."
+python run_app.py --port 8501

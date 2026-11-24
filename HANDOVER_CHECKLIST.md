@@ -17,7 +17,7 @@ Give this checklist to your friend or teammate. Following these steps verifies t
   - Required: **Python 3.10, 3.11, or 3.12** (verified on Python 3.12.4).
   - *If Python is not recognized:* Download and install Python from [python.org](https://www.python.org/downloads/) and ensure **"Add Python to PATH"** is checked during setup.
 - [ ] **3. Verify Working Directory:**  
-  Make sure you open the project in the extracted root folder where `app.py` and `START_PROJECT.bat` are located.
+  Make sure you open the project in the extracted root folder where `run_app.py` and `START_PROJECT.bat` are located.
 
 ---
 
@@ -28,9 +28,9 @@ Give this checklist to your friend or teammate. Following these steps verifies t
 - [ ] **5. Watch the Automated Setup:**  
   The script automatically:
   - Creates a local isolated virtual environment (`.venv\`).
-  - Installs all dependencies from `requirements.txt` (MNE-Python, Streamlit, Scikit-learn, etc.).
+  - Installs all dependencies from `requirements.txt` (MNE-Python, FastAPI, Scikit-learn, etc.).
   - Confirms that `results\trained_model.joblib` and `data\raw\` files exist.
-  - Launches the Streamlit server on port 8501.
+  - Launches the web server on port 8501 and opens your browser.
 - [ ] **6. Open Dashboard:**  
   Confirm your browser opens automatically to:
   **`http://localhost:8501`**

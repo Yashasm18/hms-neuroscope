@@ -20,7 +20,7 @@ if exist ".venv\Scripts\activate.bat" (
 )
 
 echo.
-echo Running 27 unit tests: signal filtering, windowing, feature extraction,
+echo Running the unit tests: signal filtering, windowing, feature extraction,
 echo patient-level split isolation and metric computations...
 echo.
 

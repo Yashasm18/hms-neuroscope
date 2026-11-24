@@ -6,7 +6,7 @@ This guide provides diagnostic steps and fixes for common technical issues encou
 ---
 
 ### Table of Contents
-1. [Streamlit Port Conflict (Port 8501 already in use)](#1-streamlit-port-conflict)
+1. [Port Conflict (Port 8501 already in use)](#1-port-conflict)
 2. [Incorrect Working Directory](#2-incorrect-working-directory)
 3. [Missing Python Packages or ImportError](#3-missing-python-packages)
 4. [Missing EDF Recordings or Annotation Files](#4-missing-edf-recordings)
@@ -19,35 +19,31 @@ This guide provides diagnostic steps and fixes for common technical issues encou
 
 ---
 
-### 1. Streamlit Port Conflict
+### 1. Port Conflict
 
 #### Symptom:
 Terminal displays:
 ```text
 OSError: [Errno 10048] error while attempting to bind on address ('localhost', 8501): only one usage of each socket address is normally permitted
 ```
-or Streamlit automatically jumps to `http://localhost:8502`.
+or the launcher reports that the web server stopped with an error.
 
 #### Cause:
-Another Streamlit instance is already running in the background.
+Another copy of the app (or another program) is already using port 8501.
 
 #### Fix:
 **Option A: Run on a different port:**
 ```powershell
-streamlit run app.py --server.port=8502
+.venv\Scripts\python run_app.py --port 8502
 ```
 
-**Option B: Terminate existing Streamlit processes (Windows PowerShell):**
-```powershell
-Get-Process -Name python | Where-Object { $_.MainWindowTitle -like "*streamlit*" } | Stop-Process
-```
-Or kill all Python tasks if safe:
+**Option B: Close the other copy.** Close any other `START_PROJECT.bat` window. Or kill all Python tasks if safe:
 ```powershell
 taskkill /F /IM python.exe
 ```
 Then relaunch:
 ```powershell
-streamlit run app.py
+python run_app.py
 ```
 
 ---
@@ -89,7 +85,7 @@ pip install -r requirements.txt
 
 Verify that all required packages load without error:
 ```powershell
-python -c "import mne, streamlit, sklearn, scipy, plotly, joblib, matplotlib, requests, pytest; print('All Core Packages OK')"
+python -c "import mne, fastapi, uvicorn, sklearn, scipy, plotly, joblib, matplotlib, requests, pytest; print('All Core Packages OK')"
 ```
 
 ---
@@ -155,7 +151,7 @@ Ensure the EEG data is passed through `src.preprocessing.montage.standardize_bip
 ### 7. Memory and Processing Delays
 
 #### Symptom:
-Streamlit UI shows `"Running..."` for a prolonged period, or memory spikes above 4 GB.
+A page shows a loading spinner for a long time, or memory spikes above 4 GB.
 
 #### Cause:
 Attempting to process or plot an entire 1-hour raw EEG recording at once ($23\text{ channels} \times 256\text{ Hz} \times 3600\text{ s} \approx 21.2\text{ million datapoints}$).
@@ -163,7 +159,7 @@ Attempting to process or plot an entire 1-hour raw EEG recording at once ($23\te
 #### Fix:
 1. In the **Signal Explorer**, keep the *Window Span* slider between **5.0s and 30.0s**.
 2. When loading custom EDF files via the upload tab, duration is automatically clamped to 300 seconds to preserve UI responsiveness.
-3. If memory is constrained, close other open browser tabs or restart Streamlit.
+3. If memory is constrained, close other open browser tabs or restart the app. Detection scores long recordings in 10-minute chunks and caches the scores, so changing the threshold afterwards is instant.
 
 ---
 
@@ -198,7 +194,7 @@ All 27 tests in `tests/` are verified to pass. If an error occurs, ensure that `
 Metrics shown on the Dashboard differ from [`results/metrics.json`](results/metrics.json).
 
 #### Cause:
-The Streamlit session is displaying a cached or synthetic demo model instead of the real experiment bundle.
+The workspace is showing a synthetic demo recording or a benchmark model instead of the real experiment bundle.
 
 #### Fix:
 1. In the left sidebar, click the **`🏥 Load Real`** button.

@@ -42,7 +42,7 @@ echo.
 
 :: 4. Install dependencies if anything is missing
 echo [4/6] Verifying Python dependencies...
-python -c "import mne, streamlit, sklearn, scipy, plotly, joblib, matplotlib, requests, pytest, numpy, pandas, wfdb" >nul 2>&1
+python -c "import mne, fastapi, uvicorn, multipart, sklearn, scipy, plotly, joblib, matplotlib, requests, pytest, numpy, pandas, wfdb" >nul 2>&1
 if not errorlevel 1 goto :deps_ready
 echo   Installing packages from requirements.txt
 echo   The first run can take 3 to 5 minutes, please wait...
@@ -77,11 +77,11 @@ echo   Opening in your browser at: http://localhost:8501
 echo   To STOP the server, close this window or press Ctrl + C.
 echo ===============================================================================
 echo.
-python -m streamlit run app.py --server.headless=false --server.port=8501
+python run_app.py --port 8501
 if errorlevel 1 (
     echo.
-    echo [ERROR] Streamlit stopped with an error.
-    echo If port 8501 is busy, run:  .venv\Scripts\python -m streamlit run app.py --server.port=8502
+    echo [ERROR] The web server stopped with an error.
+    echo If port 8501 is busy, run:  .venv\Scripts\python run_app.py --port 8502
 )
 pause
 exit /b 0

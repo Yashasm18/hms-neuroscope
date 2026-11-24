@@ -9,7 +9,7 @@ Use this checklist during your viva or project presentation. It provides the **s
 
 | Step | Tab / Screen | Action | Key Talking Point for Professor | Duration |
 |---|---|---|---|---|
-| **1** | Terminal | `streamlit run app.py` | Explain that the system is an academic continuous EEG seizure detection prototype built on the CHB-MIT PhysioNet database. | 30s |
+| **1** | Terminal | `python run_app.py` | Explain that the system is an academic continuous EEG seizure detection prototype built on the CHB-MIT PhysioNet database. | 30s |
 | **2** | 📊 Dashboard | Show overview cards & medical disclaimer | Point out the 4 metrics cards (Accuracy 94.74%, Sensitivity 84.62%, Specificity 100%) and emphasize the academic disclaimer. | 30s |
 | **3** | 📈 Signal Explorer | Click `⏩ Jump to Seizure (2996s - 3036s)` | Show the 18-channel 10-20 bipolar montage, the zero-phase 0.5–40 Hz filter, and the prominent high-amplitude rhythmic seizure discharge. | 60s |
 | **4** | 🧠 Model Training | Show Patient-Level Holdout configuration | **The Critical Finding:** Explain why a single-recording chronological split fails (0 seizures in train/val) and show the multi-recording patient-isolated design. | 60s |
@@ -24,7 +24,7 @@ Use this checklist during your viva or project presentation. It provides the **s
 - [ ] Open PowerShell in `d:\akshay_project`.
 - [ ] Run `pytest -v` to confirm all 27 automated unit tests pass.
 - [ ] Confirm `results/metrics.json` and `results/trained_model.joblib` exist.
-- [ ] Launch the app: `streamlit run app.py`.
+- [ ] Launch the app: `python run_app.py` (or double-click `START_PROJECT.bat`).
 - [ ] Verify browser opens to `http://localhost:8501`.
 
 ---
@@ -99,7 +99,7 @@ Use this checklist during your viva or project presentation. It provides the **s
 1. **If live training takes too long:**  
    Do **not** click `🚀 Train Real CHB-MIT Baseline Model` during the talk. All results are already pre-computed in `results/metrics.json` and `results/trained_model.joblib`. Simply navigate directly to the **Evaluation** tab.
 2. **If port 8501 is busy:**  
-   Launch on a different port: `streamlit run app.py --server.port=8502`.
+   Launch on a different port: `python run_app.py --port 8502`.
 3. **If the browser crashes or disconnects:**  
    Show the generated static image artifacts directly:
    - Confusion matrix: `results/confusion_matrix.png`

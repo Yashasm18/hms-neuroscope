@@ -21,14 +21,17 @@ def plot_multichannel_eeg(
     highlight_intervals: Optional[List[Tuple[float, float, str]]] = None,
     channel_spacing_uV: float = 120.0,
     title: str = "Multichannel EEG Traces",
+    data_offset_sec: float = 0.0,
 ) -> go.Figure:
     """
     Render stacked multichannel EEG waveforms in standard neurophysiology review format.
     highlight_intervals: list of (start_sec, end_sec, label) e.g. for ground-truth or predicted seizures.
     """
+    # data_offset_sec: absolute time of data[:, 0], so a slice of a longer
+    # recording can be plotted on the recording's own time axis.
     n_channels, total_samples = data.shape
-    start_idx = int(t_start_sec * sfreq)
-    end_idx = min(total_samples, int((t_start_sec + duration_sec) * sfreq))
+    start_idx = int(round((t_start_sec - data_offset_sec) * sfreq))
+    end_idx = min(total_samples, start_idx + int(round(duration_sec * sfreq)))
 
     if start_idx >= total_samples:
         start_idx = 0

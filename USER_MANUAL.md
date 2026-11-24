@@ -52,7 +52,7 @@ pip install -r requirements.txt
 | Package | Verified Version | Purpose |
 |---|---|---|
 | `mne` | `1.13.2` | European Data Format (EDF) loading and raw signal container |
-| `streamlit` | `1.52.0` | Dark scientific interactive web dashboard |
+| `fastapi` + `uvicorn` | `0.115+` / `0.30+` | Web server and JSON API behind the dashboard (`webapp/`) |
 | `scikit-learn` | `1.7.2` | `RandomForestClassifier`, `StandardScaler`, metrics, pipelines |
 | `scipy` | `1.16.3` | Butterworth bandpass filter, IIR notch filter, Welch PSD |
 | `plotly` | `5.24.1` | Interactive dark-themed multi-channel waveform & PSD charts |
@@ -71,17 +71,15 @@ pip install -r requirements.txt
 From the project root `d:\akshay_project`, run:
 
 ```powershell
-streamlit run app.py
+python run_app.py
 ```
 
 ### 2.2 Accessing the Dashboard
-Streamlit will initialize the local server and display output in the terminal:
+The server starts and your browser opens automatically. The terminal shows:
 
 ```text
-  You can now view your Streamlit app in your browser.
-
-  Local URL: http://localhost:8501
-  Network URL: http://192.168.x.x:8501
+  HMS NeuroScope is starting at http://localhost:8501
+  Press Ctrl+C to stop.
 ```
 
 Open your web browser (Google Chrome, Microsoft Edge, or Mozilla Firefox) and navigate to:

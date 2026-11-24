@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HMS NeuroScope · EEG Seizure Detection</title>
+  <meta name="description" content="Seizure detection on CHB-MIT scalp EEG: signal explorer, model training, detection and evaluation.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%235EEAD4'/><stop offset='1' stop-color='%23A78BFA'/></linearGradient></defs><rect width='32' height='32' rx='9' fill='url(%23g)'/><path d='M5 17h5l3-7 4 13 3-8 2 2h5' fill='none' stroke='%2306080D' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#/dashboard" style="text-decoration:none">
+        <div class="brand-mark"><span class="ms">neurology</span></div>
+        <div><div class="brand-name">HMS NeuroScope</div><div class="brand-sub">CHB-MIT Scalp EEG Research</div></div>
+      </a>
+      <div class="side-heading">Workspace</div>
+      <nav class="nav" id="nav"></nav>
+      <div class="side-heading">System status</div>
+      <div id="side-status"><div class="skeleton" style="height:120px"></div></div>
+      <div class="side-actions">
+        <button class="btn sm" data-load="chb01_03" title="Load the official CHB-MIT chb01_03.edf"><span class="ms">local_hospital</span>Real</button>
+        <button class="btn sm" data-load="demo" title="Load the synthetic benchmark recording"><span class="ms">science</span>Demo</button>
+      </div>
+      <div class="side-foot">
+        <div class="banner rose" style="font-size:.74rem"><div><strong>Academic research prototype</strong><br>Not a clinical diagnostic device. Evaluated on CHB-MIT Scalp EEG.</div></div>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim"></div>
+    <div class="main">
+      <header class="topbar">
+        <div class="row" style="gap:10px">
+          <div class="brand-mark" style="width:32px;height:32px"><span class="ms" style="font-size:19px">neurology</span></div>
+          <strong>HMS NeuroScope</strong>
+        </div>
+        <button class="icon-btn" id="menu-btn" aria-label="Open navigation"><span class="ms">menu</span></button>
+      </header>
+      <main class="content" id="app" aria-live="polite"></main>
+    </div>
+  </div>
+  <div class="toasts" id="toasts"></div>
+  <script src="/vendor/plotly.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -69,7 +69,7 @@ If you wish to test other subjects (e.g., `chb03`):
 ## 5. How to Upload a Custom EDF via the Dashboard
 
 To test an arbitrary EDF recording without modifying folders:
-1. Start the app: double-click `START_PROJECT.bat` (or run `streamlit run app.py`).
+1. Start the app: double-click `START_PROJECT.bat` (or run `python run_app.py`).
 2. In the sidebar, select **`📁 EEG Upload & Data Manager`**.
 3. Select the tab: **`Upload Custom EDF File`**.
 4. Drag and drop any `.edf` file.

@@ -8,7 +8,10 @@ akshay_project_release/
 ├── RUN_TESTS.bat                  # Runs the 27-test automated verification suite
 ├── RUN_EXPERIMENT.bat             # Executes real CHB-MIT experiment pipeline and updates results/
 │
-├── app.py                         # Streamlit multi-tab scientific web application
+├── run_app.py                     # Starts the web app (FastAPI server + frontend) on port 8501
+├── render.yaml                    # Render.com deployment blueprint (public read-only demo)
+├── webapp/                        # FastAPI backend: JSON API, chunked detection, recording cache
+├── web/                           # Frontend: index.html, styles.css, app.js (Plotly.js charts)
 ├── config.py                      # Central constants, montage definitions, and file paths
 ├── requirements.txt               # Pinned Python package dependencies (compatible with Python 3.10-3.12)
 ├── .env.example                   # Environment variable template
