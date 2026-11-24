@@ -9,7 +9,7 @@ from src.inference.predictor import SeizurePredictor
 from webapp import service as S
 from webapp.server import app
 
-client = TestClient(app)
+client = TestClient(app, headers={"X-NeuroScope": "1"})
 HAS_TEST_EDF = (RAW_DATA_DIR / "chb02" / "chb02_16.edf").exists()
 
 
@@ -28,6 +28,12 @@ def test_unknown_recording_and_artifact_paths_rejected():
     assert client.get("/artifacts/..%2Fconfig.py").status_code == 404
 
 
+def test_post_without_app_header_is_refused():
+    bare = TestClient(app)
+    assert bare.post("/api/detect", json={"rec": "demo"}).status_code == 403
+    assert bare.post("/api/train/real").status_code == 403
+
+
 def test_upload_rejects_non_edf():
     r = client.post("/api/upload", files={"file": ("notes.txt", b"hello", "text/plain")})
     assert r.status_code == 400
@@ -37,6 +43,7 @@ def test_training_blocked_in_public_demo(monkeypatch):
     monkeypatch.setattr(S, "PUBLIC_DEMO", True)
     assert client.post("/api/train/real").status_code == 403
     assert client.post("/api/train/synthetic", json={}).status_code == 403
+    assert client.post("/api/summary/chb03").status_code == 403
 
 
 def test_synthetic_demo_detection_and_explorer():

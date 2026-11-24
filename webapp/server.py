@@ -52,6 +52,18 @@ SUMMARY_PATIENTS = ["chb01", "chb02", "chb03", "chb06", "chb10"]
 
 app = FastAPI(title="HMS NeuroScope", docs_url="/api/docs", redoc_url=None)
 
+# Every state-changing request must carry this header. Browsers cannot add a custom
+# header to a cross-site request without a CORS preflight (which this server never
+# approves), so other websites cannot trigger training or uploads on localhost.
+CSRF_HEADER = "x-neuroscope"
+
+
+@app.middleware("http")
+async def require_app_header(request, call_next):
+    if request.method not in ("GET", "HEAD", "OPTIONS") and request.headers.get(CSRF_HEADER) != "1":
+        return JSONResponse(status_code=403, content={"detail": "Missing application header."})
+    return await call_next(request)
+
 
 def fig_json(fig) -> dict:
     return json.loads(fig.to_json())
@@ -177,6 +189,7 @@ def api_data():
 
 @app.post("/api/summary/{patient}")
 def api_fetch_summary(patient: str):
+    require_writable()
     if patient not in SUMMARY_PATIENTS:
         raise HTTPException(400, "Unknown patient")
     path = PhysioNetDownloader().download_summary(patient)

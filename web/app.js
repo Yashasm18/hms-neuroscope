@@ -27,10 +27,10 @@
   async function api(path, opts = {}) {
     busy(true);
     try {
-      const init = { ...opts };
+      const init = { ...opts, headers: { "X-NeuroScope": "1" } };
       if (opts.json !== undefined) {
         init.method = init.method || "POST";
-        init.headers = { "Content-Type": "application/json" };
+        init.headers["Content-Type"] = "application/json";
         init.body = JSON.stringify(opts.json);
       }
       const res = await fetch(path, init);
