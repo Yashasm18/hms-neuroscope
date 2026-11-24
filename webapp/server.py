@@ -102,6 +102,7 @@ def _warm_up():
         if S.MODEL.get() is not None:
             S.get_scores(rec)
         api_overview(S.DEFAULT_RECORDING)
+        psd_figure(rec, rec.eeg.channel_names[0], True)
     except Exception as exc:  # keep serving even if warm-up fails
         _WARM["error"] = str(exc)
     _WARM["ready"] = True
@@ -143,8 +144,22 @@ def api_model():
     return S.model_info(S.MODEL.get())
 
 
+_OVERVIEW_CACHE: "dict[tuple, dict]" = {}
+
+
 @app.get("/api/overview")
 def api_overview(rec: str = S.DEFAULT_RECORDING):
+    """Dashboard payload; cached per (recording, model version) because it only changes with those."""
+    key = (rec, S.MODEL.version)
+    if key not in _OVERVIEW_CACHE:
+        payload = _build_overview(rec)
+        if len(_OVERVIEW_CACHE) > 16:
+            _OVERVIEW_CACHE.clear()
+        _OVERVIEW_CACHE[key] = payload
+    return _OVERVIEW_CACHE[key]
+
+
+def _build_overview(rec: str):
     metrics = S.real_metrics()
     bundle = S.MODEL.get()
     cards = None
